@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weather Now</title>
   <style>
+    /* ====== GENERAL PAGE STYLES ====== */
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
@@ -18,9 +19,10 @@
       background-attachment: fixed;
     }
 
+    /* ====== MAIN APP CONTAINER ====== */
     .container {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.15); /* Transparent glass effect */
+      backdrop-filter: blur(10px);           /* Glass blur */
       border-radius: 1.5rem;
       padding: 2rem;
       text-align: center;
@@ -28,12 +30,14 @@
       width: 350px;
     }
 
+    /* ====== TITLE ====== */
     h1 {
       margin-bottom: 1.5rem;
       font-size: 2rem;
       text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
     }
 
+    /* ====== INPUT FIELD ====== */
     input {
       width: 80%;
       padding: 0.6rem;
@@ -43,6 +47,7 @@
       text-align: center;
     }
 
+    /* ====== BUTTON STYLE ====== */
     button {
       margin-top: 1rem;
       padding: 0.7rem 1.5rem;
@@ -59,6 +64,7 @@
       background-color: #357ab8;
     }
 
+    /* ====== WEATHER RESULT BOX ====== */
     .result {
       margin-top: 1.5rem;
       font-size: 1.2rem;
@@ -69,18 +75,21 @@
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
 
+    /* ====== WEATHER ICON (EMOJI) ====== */
     .emoji {
       font-size: 2.5rem;
       display: block;
       margin-bottom: 0.5rem;
     }
 
+    /* ====== ERROR MESSAGE ====== */
     .error {
       margin-top: 1rem;
       color: #ffdddd;
       font-size: 0.95rem;
     }
 
+    /* ====== MOBILE RESPONSIVE ====== */
     @media (max-width: 400px) {
       .container {
         width: 90%;
@@ -93,26 +102,34 @@
   <div class="container">
     <h1>🌤️ Weather Now</h1>
 
+    <!-- Input field for the user to enter a city -->
     <input type="text" id="cityInput" placeholder="Enter city name" />
     <br />
+
+    <!-- Button to trigger weather fetch -->
     <button id="getWeatherBtn">Get Weather</button>
 
+    <!-- Area to show weather data -->
     <div id="output" class="result"></div>
+
+    <!-- Error message display area -->
     <p id="error" class="error"></p>
   </div>
 
   <script>
+    // ====== DOM ELEMENT REFERENCES ======
     const cityInput = document.getElementById("cityInput");
     const getWeatherBtn = document.getElementById("getWeatherBtn");
     const output = document.getElementById("output");
     const errorMsg = document.getElementById("error");
 
-    // Helper: Map weather codes to emojis
+    // ====== WEATHER CODE → EMOJI MAPPINGS ======
+    // (Open-Meteo weather codes are mapped to friendly emoji icons)
     const weatherIcons = {
-      0: "☀️", // Clear sky
-      1: "🌤️", // Mainly clear
-      2: "⛅",  // Partly cloudy
-      3: "☁️", // Overcast
+      0: "☀️",  // Clear sky
+      1: "🌤️",  // Mainly clear
+      2: "⛅",   // Partly cloudy
+      3: "☁️",  // Overcast
       45: "🌫️", // Fog
       48: "🌫️",
       51: "🌦️", // Light drizzle
@@ -132,33 +149,44 @@
       99: "⛈️"
     };
 
+    /**
+     * Fetches weather information for a given city.
+     * Steps:
+     * 1. Get latitude/longitude from the city name using Open-Meteo Geocoding API.
+     * 2. Fetch current weather using latitude/longitude from Open-Meteo Forecast API.
+     * 3. Display weather info (temperature, wind speed, emoji).
+     */
     async function getWeather(city) {
       try {
+        // Clear any previous messages
         errorMsg.textContent = "";
         output.innerHTML = "Fetching weather...";
 
-        // Step 1: Geocode city name
+        // ====== STEP 1: Geocode city name ======
         const geoRes = await fetch(
           `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}`
         );
         const geoData = await geoRes.json();
 
+        // Check if city was found
         if (!geoData.results || geoData.results.length === 0) {
           throw new Error("City not found. Try another one.");
         }
 
+        // Extract coordinates
         const { latitude, longitude, name, country } = geoData.results[0];
 
-        // Step 2: Fetch weather data
+        // ====== STEP 2: Fetch weather data using coordinates ======
         const weatherRes = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
         );
         const weatherData = await weatherRes.json();
 
+        // Extract the relevant weather details
         const weather = weatherData.current_weather;
-        const icon = weatherIcons[weather.weathercode] || "🌈";
+        const icon = weatherIcons[weather.weathercode] || "🌈"; // Default emoji if code not mapped
 
-        // Step 3: Display
+        // ====== STEP 3: Display formatted results ======
         output.innerHTML = `
           <span class="emoji">${icon}</span>
           <strong>${name}, ${country}</strong><br>
@@ -166,17 +194,22 @@
           💨 Wind Speed: ${weather.windspeed} km/h
         `;
       } catch (error) {
+        // Handle and display any errors
         output.innerHTML = "";
         errorMsg.textContent = error.message;
       }
     }
 
+    // ====== EVENT LISTENERS ======
+
+    // When button is clicked → fetch weather
     getWeatherBtn.addEventListener("click", () => {
       const city = cityInput.value.trim();
       if (city) getWeather(city);
       else errorMsg.textContent = "Please enter a city name.";
     });
 
+    // Allow pressing Enter key to trigger search
     cityInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") getWeatherBtn.click();
     });
