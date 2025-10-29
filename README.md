@@ -1,31 +1,37 @@
-# 🌦️ Weather Now
+# 🌤️ Weather Now
 
-## 👤 User Persona
-**Name:** Jamie  
-**Occupation:** Outdoor Enthusiast  
-**Need:** Jamie wants to quickly check current weather before going outdoors.
+A simple web app that shows the current temperature and wind speed for any city.
 
-## 🧠 About the App
-Weather Now is a simple web app that shows the current **temperature** and **wind speed** for any city, using the **Open-Meteo API**.  
-No API key required — just type a city name and get live data instantly!
+---
 
-## 🔗 APIs Used
-- Open-Meteo Geocoding API  
-- Open-Meteo Weather Forecast API
+## 🚀 Features
+- Search any city in the world
+- Fetches live weather data using the **Open-Meteo API**
+- Displays:
+  - Temperature (°C)
+  - Wind Speed (km/h)
+- Fully runs in the browser — no installation needed
 
-## ⚙️ How to Use
-1. Open the live demo: [Your CodeSandbox or StackBlitz Link]  
-2. Enter a city name (e.g., “Mumbai”)  
-3. Click “Get Weather”  
-4. View the temperature 🌡️ and wind speed 💨  
+---
 
-## 🧰 Built With
-- HTML, CSS, JavaScript  
-- Open-Meteo API  
-- ChatGPT (LLM assistance for code, debugging, and documentation)
+## 🧠 How It Works
+1. The app first uses **Open-Meteo Geocoding API** to get the city's latitude and longitude.
+2. Then it calls the **Open-Meteo Forecast API** to fetch current weather data.
+3. Finally, it displays temperature and wind speed neatly on the screen.
 
-## 📽️ Demo
-Include your short video showing:
-- ChatGPT chat link  
-- App demo  
-- Code explanation
+---
+
+## 💻 How to Run
+1. Open the app link:  
+   👉 [Live Demo](https://codesandbox.io/p/sandbox/zm672r)
+
+2. Type a city name (e.g., *Hyderabad*)  
+3. See real-time weather results!
+
+---
+
+## 🧾 Example Output
+☁️
+Hyderabad, India
+🌡️ Temperature: 23.6°C
+💨 Wind Speed: 7.9 km/h
