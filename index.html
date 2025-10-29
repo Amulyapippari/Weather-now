@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Now</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      width: 350px;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    input {
+      width: 80%;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #357ab8;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+      padding: 1rem;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .emoji {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .error {
+      margin-top: 1rem;
+      color: #ffdddd;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        width: 90%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌤️ Weather Now</h1>
+
+    <input type="text" id="cityInput" placeholder="Enter city name" />
+    <br />
+    <button id="getWeatherBtn">Get Weather</button>
+
+    <div id="output" class="result"></div>
+    <p id="error" class="error"></p>
+  </div>
+
+  <script>
+    const cityInput = document.getElementById("cityInput");
+    const getWeatherBtn = document.getElementById("getWeatherBtn");
+    const output = document.getElementById("output");
+    const errorMsg = document.getElementById("error");
+
+    // Helper: Map weather codes to emojis
+    const weatherIcons = {
+      0: "☀️", // Clear sky
+      1: "🌤️", // Mainly clear
+      2: "⛅",  // Partly cloudy
+      3: "☁️", // Overcast
+      45: "🌫️", // Fog
+      48: "🌫️",
+      51: "🌦️", // Light drizzle
+      53: "🌧️", // Moderate drizzle
+      55: "🌧️",
+      61: "🌧️", // Rain
+      63: "🌧️",
+      65: "🌧️",
+      71: "❄️", // Snow
+      73: "❄️",
+      75: "❄️",
+      80: "🌧️", // Showers
+      81: "🌧️",
+      82: "🌧️",
+      95: "⛈️", // Thunderstorm
+      96: "⛈️",
+      99: "⛈️"
+    };
+
+    async function getWeather(city) {
+      try {
+        errorMsg.textContent = "";
+        output.innerHTML = "Fetching weather...";
+
+        // Step 1: Geocode city name
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}`
+        );
+        const geoData = await geoRes.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error("City not found. Try another one.");
+        }
+
+        const { latitude, longitude, name, country } = geoData.results[0];
+
+        // Step 2: Fetch weather data
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+        );
+        const weatherData = await weatherRes.json();
+
+        const weather = weatherData.current_weather;
+        const icon = weatherIcons[weather.weathercode] || "🌈";
+
+        // Step 3: Display
+        output.innerHTML = `
+          <span class="emoji">${icon}</span>
+          <strong>${name}, ${country}</strong><br>
+          🌡️ Temperature: ${weather.temperature}°C<br>
+          💨 Wind Speed: ${weather.windspeed} km/h
+        `;
+      } catch (error) {
+        output.innerHTML = "";
+        errorMsg.textContent = error.message;
+      }
+    }
+
+    getWeatherBtn.addEventListener("click", () => {
+      const city = cityInput.value.trim();
+      if (city) getWeather(city);
+      else errorMsg.textContent = "Please enter a city name.";
+    });
+
+    cityInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") getWeatherBtn.click();
+    });
+  </script>
+</body>
+</html>
